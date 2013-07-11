@@ -37,7 +37,7 @@
 
 @end
 
-@interface ReaderViewController : UIViewController
+@interface ReaderViewController : UIViewController <UIPageViewControllerDataSource>
 
 @property (nonatomic, unsafe_unretained, readwrite) id <ReaderViewControllerDelegate> delegate;
 
