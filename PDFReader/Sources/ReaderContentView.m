@@ -101,6 +101,8 @@ static inline CGFloat ZoomScaleThatFits(CGSize target, CGSize source)
 		self.autoresizesSubviews = NO;
 		self.bouncesZoom = YES;
 		self.delegate = self;
+        
+        _pageNbr = page;
 
 		theContentView = [[ReaderContentPage alloc] initWithURL:fileURL page:page password:phrase];
 
@@ -173,6 +175,10 @@ static inline CGFloat ZoomScaleThatFits(CGSize target, CGSize source)
 	if ([image isKindOfClass:[UIImage class]]) [theThumbView showImage:image]; // Show image from cache
 
 #endif // end of READER_ENABLE_PREVIEW Option
+}
+
+-(NSUInteger) getPageNbr {
+    return (_pageNbr);
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context

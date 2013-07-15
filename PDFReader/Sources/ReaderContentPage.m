@@ -437,6 +437,7 @@
 
 		if (_PDFDocRef != NULL) // Check for non-NULL CGPDFDocumentRef
 		{
+            page++;
 			if (page < 1) page = 1; // Check the lower page bounds
 
 			NSInteger pages = CGPDFDocumentGetNumberOfPages(_PDFDocRef);

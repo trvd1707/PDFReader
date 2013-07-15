@@ -42,10 +42,13 @@
 @interface ReaderContentView : UIScrollView <UIScrollViewDelegate>
 
 @property (nonatomic, unsafe_unretained, readwrite) id <ReaderContentViewDelegate> message;
+@property (nonatomic,readonly) NSUInteger pageNbr;
 
 - (id)initWithFrame:(CGRect)frame fileURL:(NSURL *)fileURL page:(NSUInteger)page password:(NSString *)phrase;
 
 - (void)showPageThumb:(NSURL *)fileURL page:(NSInteger)page password:(NSString *)phrase guid:(NSString *)guid;
+
+- (NSUInteger) getPageNbr;
 
 - (id)processSingleTap:(UITapGestureRecognizer *)recognizer;
 

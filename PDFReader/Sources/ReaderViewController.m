@@ -49,8 +49,6 @@
 
 	ReaderMainPagebar *mainPagebar;
 
-	NSMutableArray *contentViews;
-
 	UIPrintInteractionController *printInteraction;
 
 	NSInteger currentPage;
@@ -64,7 +62,7 @@
 
 #pragma mark Constants
 
-#define PAGING_VIEWS 3
+//#define PAGING_VIEWS 3
 
 #define TOOLBAR_HEIGHT 44.0f
 #define PAGEBAR_HEIGHT 48.0f
@@ -88,7 +86,7 @@
 
 - (void)showDocumentPage:(NSInteger)page
 {
-    assert(page <= [contentViews count]);
+    assert(page <= [document.pageCount integerValue]);
 
     if (page == currentPage) return;
     UIPageViewControllerNavigationDirection direction= page > currentPage?
@@ -96,8 +94,6 @@
                                                         UIPageViewControllerNavigationDirectionReverse;
 	
     ReaderContentViewController *currentViewController = [self viewControllerAtIndex:page];
-    
-    currentPage = page; // Track current page number
     NSArray *viewControllers =
     [NSArray arrayWithObject:currentViewController];
     
@@ -105,6 +101,18 @@
                           direction:direction
                            animated:NO
                          completion:nil];
+
+    
+    if ([document.pageNumber integerValue] != page) // Only if different
+    {
+        document.pageNumber = [NSNumber numberWithInteger:page]; // Update page number
+    }
+    
+    [mainPagebar updatePagebar]; // Update the pagebar display
+    
+    [self updateToolbarBookmarkIcon]; // Update bookmark
+    
+    currentPage = page; // Track current page number
 }
 
 - (void)showDocument:(id)object
@@ -178,8 +186,7 @@
 	[self.view addGestureRecognizer:doubleTapTwo];
 
 	[singleTapOne requireGestureRecognizerToFail:doubleTapOne]; // Single tap requires double tap to fail
-    
-    NSLog(@"Configure Page View Controller");
+
     // create pageViewController
     NSDictionary *options =
     [NSDictionary dictionaryWithObject:
@@ -193,7 +200,7 @@
     thePageView.dataSource = self;
     
     //create content for pageViewController
-    [self createContentViews];
+    //[self createContentViews];
     ReaderContentViewController *initialViewController = [self viewControllerAtIndex:0];
     NSArray *viewControllers =
     [NSArray arrayWithObject:initialViewController];
@@ -270,7 +277,7 @@
 
 	mainToolbar = nil; mainPagebar = nil;
 
-	thePageView = nil; contentViews = nil; lastHideTime = nil;
+	thePageView = nil; lastHideTime = nil;
 
 	lastAppearSize = CGSizeZero; currentPage = 0;
 
@@ -338,11 +345,12 @@
 	if (thePageView.view.tag == 0) // Scroll view did end
 	{
 		NSInteger page = [document.pageNumber integerValue];
-		NSInteger maxPage = [document.pageCount integerValue];
-		NSInteger minPage = 1; // Minimum
+		NSInteger minPage = 0; // Minimum
 
-		if ((maxPage > minPage) && (page != minPage))
+		if (page > minPage)
 		{
+            thePageView.view.tag = (page - 1); // Increment page number
+            document.pageNumber = [NSNumber numberWithInt:page-1];
 		}
 	}
 }
@@ -353,17 +361,18 @@
 	{
 		NSInteger page = [document.pageNumber integerValue];
 		NSInteger maxPage = [document.pageCount integerValue];
-		NSInteger minPage = 1; // Minimum
 
-		if ((maxPage > minPage) && (page != maxPage))
+		if (page < maxPage)
 		{
 			thePageView.view.tag = (page + 1); // Increment page number
+            document.pageNumber = [NSNumber numberWithInt:page+1];
 		}
 	}
 }
 
 - (void)handleSingleTap:(UITapGestureRecognizer *)recognizer
 {
+    NSLog(@"Single Tap");
 	if (recognizer.state == UIGestureRecognizerStateRecognized)
 	{
 		CGRect viewRect = recognizer.view.bounds; // View bounds
@@ -376,7 +385,7 @@
 		{
 			NSInteger page = [document.pageNumber integerValue]; // Current page #
 
-			ReaderContentView *targetView = [contentViews objectAtIndex:page];
+			ReaderContentView *targetView = (ReaderContentView *) [self  viewControllerAtIndex:page].view;
 
 			id target = [targetView processSingleTap:recognizer]; // Target
 
@@ -410,7 +419,6 @@
 					if ([target isKindOfClass:[NSNumber class]]) // Goto page
 					{
 						NSInteger value = [target integerValue]; // Number
-                        NSLog(@"Handle page turns");
 
 						[self showDocumentPage:value]; // Show the page
 					}
@@ -422,7 +430,9 @@
 				{
 					if ((mainToolbar.hidden == YES) || (mainPagebar.hidden == YES))
 					{
-						[mainToolbar showToolbar]; [mainPagebar showPagebar]; // Show
+						[mainToolbar showToolbar];
+                        [mainPagebar showPagebar]; // Show
+                        [mainPagebar updatePagebar];
 					}
 				}
 			}
@@ -463,7 +473,7 @@
 		{
 			NSInteger page = [document.pageNumber integerValue]; // Current page #
 
-			ReaderContentView *targetView = [contentViews objectAtIndex:page];
+			ReaderContentView *targetView = (ReaderContentView *) [self viewControllerAtIndex:page].view;
 
 			switch (recognizer.numberOfTouchesRequired) // Touches count
 			{
@@ -712,31 +722,12 @@
 }
 
 #pragma mark data source for UIPageViewController
-- (void)createContentViews {
-    
-    NSMutableArray *pages = [[NSMutableArray alloc] init];
-    NSURL *fileURL = document.fileURL; NSString *phrase = document.password;
-    NSMutableIndexSet *newPageSet = [NSMutableIndexSet new];
-    CGRect viewRect = CGRectZero; viewRect.size = thePageView.view.bounds.size;
-
-
-    for (int i = 1; i <= [document.pageCount intValue]; i++)
-    {
-        ReaderContentView *contentView = [[ReaderContentView alloc] initWithFrame:viewRect fileURL:fileURL page:i password:phrase];
-        
-        contentView.message = self;
-        [newPageSet addIndex:i];
-        [pages addObject:contentView];
-    }
-    contentViews = [[NSMutableArray alloc] initWithArray:pages];
-
-}
 
 - (ReaderContentViewController *)viewControllerAtIndex:(NSUInteger)index
 {
     // Return the data view controller for the given index.
-    if (([self->contentViews count] == 0) ||
-        (index >= [self->contentViews count])) {
+    if (([document.pageCount intValue] == 0) ||
+        (index > [document.pageCount intValue])) {
         return nil;
     }
     
@@ -745,14 +736,22 @@
     [[ReaderContentViewController alloc]
      initWithNibName:nil
      bundle:nil];
-    dataViewController.view =
-    [self->contentViews objectAtIndex:index];
+    
+    NSURL *fileURL = document.fileURL; NSString *phrase = document.password;
+    CGRect viewRect = CGRectZero; viewRect.size = thePageView.view.bounds.size;
+
+    ReaderContentView *contentView = [[ReaderContentView alloc] initWithFrame:viewRect fileURL:fileURL page:index password:phrase];
+    
+    contentView.message = self;
+    
+    dataViewController.view = contentView;
     return dataViewController;
 }
 
 - (NSUInteger)indexOfViewController:(ReaderContentViewController *)viewController
 {
-    return [self->contentViews indexOfObject:viewController.view];
+    ReaderContentView *rv = (ReaderContentView *) viewController.view;
+    return (rv.pageNbr);
 }
 
 - (UIViewController *)pageViewController:
@@ -779,7 +778,7 @@
     }
     
     index++;
-    if (index == [self->contentViews count]) {
+    if (index >= [document.pageCount intValue]) {
         return nil;
     }
     return [self viewControllerAtIndex:index];

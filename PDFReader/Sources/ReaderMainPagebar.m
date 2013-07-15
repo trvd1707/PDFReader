@@ -126,7 +126,7 @@
 
 		NSString *format = NSLocalizedString(@"%d of %d", @"format"); // Format
 
-		NSString *number = [NSString stringWithFormat:format, page, pages]; // Text
+		NSString *number = [NSString stringWithFormat:format, page+1, pages]; // Text
 
 		pageNumberLabel.text = number; // Update the page number label text
 
@@ -408,7 +408,7 @@
 
 	NSInteger page = (trackView.value / stride); // Integer page number
 
-	return (page + 1); // + 1
+	return (page); // using UIPageViewController
 }
 
 - (void)trackViewTouchDown:(ReaderTrackControl *)trackView
