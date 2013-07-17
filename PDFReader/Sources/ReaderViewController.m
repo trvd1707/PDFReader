@@ -167,6 +167,8 @@
 	toolbarRect.size.height = TOOLBAR_HEIGHT;
 
 	mainToolbar = [[ReaderMainToolbar alloc] initWithFrame:toolbarRect document:document]; // At top
+    [mainToolbar sizeToFit];
+    [mainToolbar setFrame:toolbarRect];
 
 	mainToolbar.delegate = self;
 
@@ -198,9 +200,9 @@
                          options: options];
     
     thePageView.dataSource = self;
+    thePageView.delegate = self;
     
     //create content for pageViewController
-    //[self createContentViews];
     ReaderContentViewController *initialViewController = [self viewControllerAtIndex:0];
     NSArray *viewControllers =
     [NSArray arrayWithObject:initialViewController];
@@ -231,8 +233,10 @@
 - (void)viewWillAppear:(BOOL)animated
 {
 	[super viewWillAppear:animated];
-    NSLog(@"View will appear");
-
+    if (document != nil) {
+        NSInteger page = [document.pageNumber integerValue];
+        [self showDocumentPage:page];
+    }
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -372,7 +376,6 @@
 
 - (void)handleSingleTap:(UITapGestureRecognizer *)recognizer
 {
-    NSLog(@"Single Tap");
 	if (recognizer.state == UIGestureRecognizerStateRecognized)
 	{
 		CGRect viewRect = recognizer.view.bounds; // View bounds
@@ -432,7 +435,6 @@
 					{
 						[mainToolbar showToolbar];
                         [mainPagebar showPagebar]; // Show
-                        [mainPagebar updatePagebar];
 					}
 				}
 			}
@@ -782,6 +784,16 @@
         return nil;
     }
     return [self viewControllerAtIndex:index];
+}
+
+#pragma mark delegate for UIPageViewController
+
+- (void)pageViewController:(UIPageViewController *)pageViewController willTransitionToViewControllers:(NSArray *)pendingViewControllers {
+    ReaderContentViewController *rvc = (ReaderContentViewController *) [pendingViewControllers objectAtIndex:0];
+    ReaderContentView *rv = (ReaderContentView *)rvc.view;
+    
+    document.pageNumber = [NSNumber numberWithInt: rv.pageNbr];
+    [mainPagebar updatePagebar];
 }
 
 

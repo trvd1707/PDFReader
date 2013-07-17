@@ -58,17 +58,18 @@
 {
 	if (_links.count > 0) // Add highlight views over all links
 	{
-		UIColor *hilite = [UIColor colorWithRed:0.0f green:0.0f blue:1.0f alpha:0.15f];
+		UIColor *hilite = [UIColor colorWithRed:0.0f green:1.0f blue:1.0f alpha:0.15f];
 
 		for (ReaderDocumentLink *link in _links) // Enumerate the links array
 		{
-			UIView *highlight = [[UIView alloc] initWithFrame:link.rect];
+			UILabel *highlight = [[UILabel alloc] initWithFrame:link.rect];
 
 			highlight.autoresizesSubviews = NO;
-			highlight.userInteractionEnabled = NO;
+			highlight.userInteractionEnabled = YES;
 			highlight.contentMode = UIViewContentModeRedraw;
 			highlight.autoresizingMask = UIViewAutoresizingNone;
 			highlight.backgroundColor = hilite; // Color
+            highlight.text = [NSString stringWithFormat:@"Link#:%d",[_links indexOfObject:link]];
 
 			[self addSubview:highlight];
 		}
@@ -169,7 +170,7 @@
 			}
 		}
 
-		//[self highlightPageLinks]; // Link support debugging
+		[self highlightPageLinks]; // Link support debugging
 	}
 }
 
@@ -354,7 +355,7 @@
 
 				if (pageDictionaryFromPage == pageDictionaryFromDestArray) // Found it
 				{
-					targetPageNumber = pageNumber; break;
+					targetPageNumber = pageNumber-1; break;
 				}
 			}
 		}
@@ -364,7 +365,7 @@
 
 			if (CGPDFArrayGetInteger(destArray, 0, &pageNumber) == true)
 			{
-				targetPageNumber = (pageNumber + 1); // 1-based
+				targetPageNumber = (pageNumber-1); // 1-based
 			}
 		}
 
@@ -373,6 +374,8 @@
 			linkTarget = [NSNumber numberWithInteger:targetPageNumber];
 		}
 	}
+    
+    NSLog(@"Link to page:%@",linkTarget);
 
 	return linkTarget;
 }
@@ -385,7 +388,7 @@
 	{
 		if (_links.count > 0) // Process the single tap
 		{
-			CGPoint point = [recognizer locationInView:self];
+			CGPoint point = [recognizer locationInView:nil];
 
 			for (ReaderDocumentLink *link in _links) // Enumerate links
 			{
@@ -437,7 +440,7 @@
 
 		if (_PDFDocRef != NULL) // Check for non-NULL CGPDFDocumentRef
 		{
-            page++;
+            // page++;
 			if (page < 1) page = 1; // Check the lower page bounds
 
 			NSInteger pages = CGPDFDocumentGetNumberOfPages(_PDFDocRef);

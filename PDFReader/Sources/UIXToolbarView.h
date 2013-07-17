@@ -35,6 +35,6 @@
 //	UIXToolbarShadow class interface
 //
 
-@interface UIXToolbarShadow : UIToolbar
+@interface UIXToolbarShadow : UIView
 
 @end

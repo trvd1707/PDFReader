@@ -134,7 +134,7 @@
 {
 	[super viewWillAppear:animated];
 
-	[theThumbsView reloadThumbsCenterOnIndex:([document.pageNumber integerValue] - 1)]; // Page
+	[theThumbsView reloadThumbsCenterOnIndex:([document.pageNumber integerValue])]; // Page
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -257,7 +257,7 @@
 {
 	CGSize size = [thumbCell maximumContentSize]; // Get the cell's maximum content size
 
-	NSInteger page = (showBookmarked ? [[bookmarked objectAtIndex:index] integerValue] : (index + 1));
+	NSInteger page = (showBookmarked ? [[bookmarked objectAtIndex:index] integerValue] : (index));
 
 	[thumbCell showText:[NSString stringWithFormat:@"%d", page]]; // Page number place holder
 
@@ -265,7 +265,7 @@
 
 	NSURL *fileURL = document.fileURL; NSString *guid = document.guid; NSString *phrase = document.password; // Document info
 
-	ReaderThumbRequest *thumbRequest = [ReaderThumbRequest newForView:thumbCell fileURL:fileURL password:phrase guid:guid page:page size:size];
+	ReaderThumbRequest *thumbRequest = [ReaderThumbRequest newForView:thumbCell fileURL:fileURL password:phrase guid:guid page:page+1 size:size];
 
 	UIImage *image = [[ReaderThumbCache sharedInstance] thumbRequest:thumbRequest priority:YES]; // Request the thumbnail
 
@@ -274,14 +274,14 @@
 
 - (void)thumbsView:(ReaderThumbsView *)thumbsView refreshThumbCell:(ThumbsPageThumb *)thumbCell forIndex:(NSInteger)index
 {
-	NSInteger page = (showBookmarked ? [[bookmarked objectAtIndex:index] integerValue] : (index + 1));
+	NSInteger page = (showBookmarked ? [[bookmarked objectAtIndex:index] integerValue] : (index));
 
 	[thumbCell showBookmark:[document.bookmarks containsIndex:page]]; // Show bookmarked status
 }
 
 - (void)thumbsView:(ReaderThumbsView *)thumbsView didSelectThumbWithIndex:(NSInteger)index
 {
-	NSInteger page = (showBookmarked ? [[bookmarked objectAtIndex:index] integerValue] : (index + 1));
+	NSInteger page = (showBookmarked ? [[bookmarked objectAtIndex:index] integerValue] : (index));
 
 	[delegate thumbsViewController:self gotoPage:page]; // Show the selected page
 
@@ -290,7 +290,7 @@
 
 - (void)thumbsView:(ReaderThumbsView *)thumbsView didPressThumbWithIndex:(NSInteger)index
 {
-	NSInteger page = (showBookmarked ? [[bookmarked objectAtIndex:index] integerValue] : (index + 1));
+	NSInteger page = (showBookmarked ? [[bookmarked objectAtIndex:index] integerValue] : (index));
 
 	if ([document.bookmarks containsIndex:page]) [document.bookmarks removeIndex:page]; else [document.bookmarks addIndex:page];
 

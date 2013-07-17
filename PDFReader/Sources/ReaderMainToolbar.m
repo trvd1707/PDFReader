@@ -31,7 +31,7 @@
 
 @implementation ReaderMainToolbar
 {
-	UIBarButtonItem *markButton;
+	UIButton *markButton;
 
 	UIImage *markImageN;
 	UIImage *markImageY;
@@ -66,6 +66,8 @@
 - (id)initWithFrame:(CGRect)frame document:(ReaderDocument *)object
 {
 	assert(object != nil); // Must have a valid ReaderDocument
+
+    
     UIBarButtonItem *spaceItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:NULL];
     NSMutableArray *buttons;
 
@@ -84,6 +86,8 @@
 #endif // end of READER_STANDALONE Option
 
 #if (READER_ENABLE_THUMBS == TRUE) // Option
+        
+        
 
 		UIBarButtonItem *thumbsButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"Reader-Thumbs"]
                                                                          style:UIBarButtonItemStylePlain
@@ -98,19 +102,35 @@
 
 
 #if (READER_BOOKMARKS == TRUE) // Option
+//
+//		UIBarButtonItem *flagButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"Reader-Mark-N"]
+//                                                                       style:UIBarButtonItemStylePlain
+//                                                                      target:self
+//                                                                      action:@selector(markButtonTapped:) ];
+        UIButton *flagButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        
+		UIImage *imageH = [UIImage imageNamed:@"Reader-Button-H"];
+		UIImage *imageN = [UIImage imageNamed:@"Reader-Button-N"];
+        
+        UIImage *buttonH = [imageH stretchableImageWithLeftCapWidth:5 topCapHeight:0];
+		UIImage *buttonN = [imageN stretchableImageWithLeftCapWidth:5 topCapHeight:0];
+        
+        flagButton.bounds = CGRectMake( 0, 0, MARK_BUTTON_WIDTH, BUTTON_HEIGHT );
 
-
-		UIBarButtonItem *flagButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"Reader-Mark-N"]
-                                                                       style:UIBarButtonItemStylePlain
-                                                                      target:self
-                                                                      action:@selector(markButtonTapped:) ];
-         [buttons addObject:flagButton];
-
+        [flagButton addTarget:self action:@selector(markButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
+		[flagButton setBackgroundImage:buttonH forState:UIControlStateHighlighted];
+		[flagButton setBackgroundImage:buttonN forState:UIControlStateNormal];
+		flagButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin;
+		flagButton.exclusiveTouch = YES;
+        flagButton.showsTouchWhenHighlighted = YES;
 
 		markButton = flagButton; markButton.enabled = NO; markButton.tag = NSIntegerMin;
 
 		markImageN = [UIImage imageNamed:@"Reader-Mark-N"]; // N image
 		markImageY = [UIImage imageNamed:@"Reader-Mark-Y"]; // Y image
+        
+        UIBarButtonItem *fb = [[UIBarButtonItem alloc] initWithCustomView:flagButton];
+        [buttons addObject:fb];
 
 #endif // end of READER_BOOKMARKS Option
 
@@ -181,8 +201,9 @@
 		if (self.hidden == NO) // Only if toolbar is visible
 		{
 			UIImage *image = (state ? markImageY : markImageN);
-            markButton.image = image;
-            [markButton setBackButtonBackgroundImage:image forState:UIControlStateNormal barMetrics:UIBarMetricsDefault];
+//            markButton.image = image;
+//            [markButton setBackButtonBackgroundImage:image forState:UIControlStateNormal barMetrics:UIBarMetricsDefault];
+            markButton.imageView.image = image;
 		}
 
 		markButton.tag = state; // Update bookmarked state tag
@@ -202,7 +223,8 @@
 		BOOL state = markButton.tag; // Bookmarked state
 
 		UIImage *image = (state ? markImageY : markImageN);
-        markButton.image = image;
+        //markButton.image = image;
+        markButton.imageView.image = image;
 	}
 
 	if (markButton.enabled == NO) markButton.enabled = YES;
@@ -270,6 +292,7 @@
 
 - (void)markButtonTapped:(UIButton *)button
 {
+        NSLog(@"Mark Page");
 	[delegate tappedInToolbar:self markButton:button];
 }
 

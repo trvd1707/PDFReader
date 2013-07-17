@@ -310,7 +310,7 @@ void logDictionaryEntry(const char *key, CGPDFObjectRef object, void *info)
 
 			if (CGPDFArrayGetInteger(destArray, 0, &pageNumber) == true)
 			{
-				targetPageNumber = (pageNumber + 1); // 1-based
+				targetPageNumber = (pageNumber+1); // 1-based
 			}
 		}
 

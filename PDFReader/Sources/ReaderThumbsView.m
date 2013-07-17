@@ -317,7 +317,7 @@
 
 		NSInteger minY = 0; maxY--; if (maxY < minY) maxY = minY; // Limits
 
-		if (index < 0) index = 0; else if (index > thumbCount) index = (thumbCount - 1);
+		if (index < 0) index = 0; else if (index > thumbCount) index = (thumbCount-1);
 
 		NSInteger thumbY = ((index / _thumbsX) * _thumbSize.height); // Thumb Y
 
