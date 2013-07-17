@@ -591,12 +591,9 @@
 
 - (id)initWithRect:(CGRect)linkRect dictionary:(CGPDFDictionaryRef)linkDictionary
 {
-	if ((self = [super init]))
-	{
-		_dictionary = linkDictionary;
-
+    // simplifyig according to http://www.cocoawithlove.com/2009/04/what-does-it-mean-when-you-assign-super.html
+        _dictionary = linkDictionary;        
 		_rect = linkRect;
-	}
 
 	return self;
 }
