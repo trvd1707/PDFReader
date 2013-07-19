@@ -32,8 +32,6 @@
 
 @implementation ReaderContentView
 {
-	ReaderContentPage *theContentView;
-
 	ReaderContentThumb *theThumbView;
 
 	UIView *theContainerView;
@@ -77,7 +75,7 @@ static inline CGFloat ZoomScaleThatFits(CGSize target, CGSize source)
 {
 	CGRect targetRect = CGRectInset(self.bounds, CONTENT_INSET, CONTENT_INSET);
 
-	CGFloat zoomScale = ZoomScaleThatFits(targetRect.size, theContentView.bounds.size);
+	CGFloat zoomScale = ZoomScaleThatFits(targetRect.size, _theContentView.bounds.size);
 
 	self.minimumZoomScale = zoomScale; // Set the minimum and maximum zoom scales
 
@@ -104,11 +102,11 @@ static inline CGFloat ZoomScaleThatFits(CGSize target, CGSize source)
         
         _pageNbr = page;
 
-		theContentView = [[ReaderContentPage alloc] initWithURL:fileURL page:page+1 password:phrase];
+		_theContentView = [[ReaderContentPage alloc] initWithURL:fileURL page:page+1 password:phrase];
 
-		if (theContentView != nil) // Must have a valid and initialized content view
+		if (_theContentView != nil) // Must have a valid and initialized content view
 		{
-			theContainerView = [[UIView alloc] initWithFrame:theContentView.bounds];
+			theContainerView = [[UIView alloc] initWithFrame:_theContentView.bounds];
 
 			theContainerView.autoresizesSubviews = NO;
 			theContainerView.userInteractionEnabled = NO;
@@ -124,19 +122,19 @@ static inline CGFloat ZoomScaleThatFits(CGSize target, CGSize source)
 
 #endif // end of READER_SHOW_SHADOWS Option
 
-			self.contentSize = theContentView.bounds.size; // Content size same as view size
+			self.contentSize = _theContentView.bounds.size; // Content size same as view size
 			self.contentOffset = CGPointMake((0.0f - CONTENT_INSET), (0.0f - CONTENT_INSET)); // Offset
 			self.contentInset = UIEdgeInsetsMake(CONTENT_INSET, CONTENT_INSET, CONTENT_INSET, CONTENT_INSET);
 
 #if (READER_ENABLE_PREVIEW == TRUE) // Option
 
-			theThumbView = [[ReaderContentThumb alloc] initWithFrame:theContentView.bounds]; // Page thumb view
+			theThumbView = [[ReaderContentThumb alloc] initWithFrame:_theContentView.bounds]; // Page thumb view
 
 			[theContainerView addSubview:theThumbView]; // Add the thumb view to the container view
 
 #endif // end of READER_ENABLE_PREVIEW Option
 
-			[theContainerView addSubview:theContentView]; // Add the content view to the container view
+			[theContainerView addSubview:_theContentView]; // Add the content view to the container view
 
 			[self addSubview:theContainerView]; // Add the container view to the scroll view
 
@@ -179,6 +177,10 @@ static inline CGFloat ZoomScaleThatFits(CGSize target, CGSize source)
 
 -(NSUInteger) getPageNbr {
     return (_pageNbr);
+}
+
+-(ReaderContentPage *) getContentView {
+    return (_theContentView);
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
@@ -235,7 +237,7 @@ static inline CGFloat ZoomScaleThatFits(CGSize target, CGSize source)
 
 - (id)processSingleTap:(UITapGestureRecognizer *)recognizer
 {
-	return [theContentView processSingleTap:recognizer];
+	return [_theContentView processSingleTap:recognizer];
 }
 
 - (void)zoomIncrement

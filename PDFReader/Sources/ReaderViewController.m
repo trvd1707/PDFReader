@@ -32,6 +32,7 @@
 #import "ReaderContentViewController.h"
 #import "ReaderThumbCache.h"
 #import "ReaderThumbQueue.h"
+#import "ReaderContentPage.h"
 
 #import <MessageUI/MessageUI.h>
 
@@ -43,7 +44,7 @@
 {
 	ReaderDocument *document;
 
-    UIPageViewController *thePageView;
+    UIPageViewController *thePageViewController;
 
 	ReaderMainToolbar *mainToolbar;
 
@@ -94,14 +95,14 @@
                                                         UIPageViewControllerNavigationDirectionReverse;
 	
     ReaderContentViewController *currentViewController = [self viewControllerAtIndex:page];
+    _pageIsAnimating = NO;
     NSArray *viewControllers =
     [NSArray arrayWithObject:currentViewController];
     
-    [thePageView setViewControllers:viewControllers
+    [thePageViewController setViewControllers:viewControllers
                           direction:direction
                            animated:NO
                          completion:nil];
-
     
     if ([document.pageNumber integerValue] != page) // Only if different
     {
@@ -194,28 +195,28 @@
     [NSDictionary dictionaryWithObject:
     [NSNumber numberWithInteger:UIPageViewControllerSpineLocationMin]
                                 forKey: UIPageViewControllerOptionSpineLocationKey];
-    self->thePageView = [[UIPageViewController alloc]
+    self->thePageViewController = [[UIPageViewController alloc]
                          initWithTransitionStyle:UIPageViewControllerTransitionStylePageCurl
                          navigationOrientation:UIPageViewControllerNavigationOrientationHorizontal
                          options: options];
     
-    thePageView.dataSource = self;
-    thePageView.delegate = self;
+    thePageViewController.dataSource = self;
+    thePageViewController.delegate = self;
     
     //create content for pageViewController
-    ReaderContentViewController *initialViewController = [self viewControllerAtIndex:0];
-    NSArray *viewControllers =
-    [NSArray arrayWithObject:initialViewController];
-    
-    [thePageView setViewControllers:viewControllers
-                          direction:UIPageViewControllerNavigationDirectionForward
-                           animated:NO
-                         completion:nil];
-    
-    
+    //ReaderContentViewController *initialViewController = [self viewControllerAtIndex:0];
+//    NSArray *viewControllers =
+//    [NSArray arrayWithObject:initialViewController];
+//
+//    [thePageViewController setViewControllers:viewControllers
+//                          direction:UIPageViewControllerNavigationDirectionForward
+//                           animated:NO
+//                         completion:nil];
+//    
+//    
     //[[thePageView view] setFrame:[[self view] bounds]];
-    [[self view] addSubview:[thePageView view]];
-    [thePageView didMoveToParentViewController:self];
+    [[self view] addSubview:[thePageViewController view]];
+    [thePageViewController didMoveToParentViewController:self];
     
     CGRect pagebarRect = viewRect;
 	pagebarRect.size.height = PAGEBAR_HEIGHT;
@@ -243,7 +244,7 @@
 {
 	[super viewDidAppear:animated];
 
-	if (CGSizeEqualToSize(thePageView.view.frame.size, CGSizeZero)) // First time
+	if (CGSizeEqualToSize(thePageViewController.view.frame.size, CGSizeZero)) // First time
 	{
 		[self performSelector:@selector(showDocument:) withObject:nil afterDelay:0.02];
 	}
@@ -281,7 +282,7 @@
 
 	mainToolbar = nil; mainPagebar = nil;
 
-	thePageView = nil; lastHideTime = nil;
+	thePageViewController = nil; lastHideTime = nil;
 
 	lastAppearSize = CGSizeZero; currentPage = 0;
 
@@ -346,14 +347,14 @@
 
 - (void)decrementPageNumber
 {
-	if (thePageView.view.tag == 0) // Scroll view did end
+	if (thePageViewController.view.tag == 0) // Scroll view did end
 	{
 		NSInteger page = [document.pageNumber integerValue];
 		NSInteger minPage = 0; // Minimum
 
 		if (page > minPage)
 		{
-            thePageView.view.tag = (page - 1); // Increment page number
+            thePageViewController.view.tag = (page - 1); // Increment page number
             document.pageNumber = [NSNumber numberWithInt:page-1];
 		}
 	}
@@ -361,14 +362,14 @@
 
 - (void)incrementPageNumber
 {
-	if (thePageView.view.tag == 0) // Scroll view did end
+	if (thePageViewController.view.tag == 0) // Scroll view did end
 	{
 		NSInteger page = [document.pageNumber integerValue];
 		NSInteger maxPage = [document.pageCount integerValue];
 
 		if (page < maxPage)
 		{
-			thePageView.view.tag = (page + 1); // Increment page number
+			thePageViewController.view.tag = (page + 1); // Increment page number
             document.pageNumber = [NSNumber numberWithInt:page+1];
 		}
 	}
@@ -386,9 +387,10 @@
 
 		if (CGRectContainsPoint(areaRect, point)) // Single tap is inside the area
 		{
-			NSInteger page = [document.pageNumber integerValue]; // Current page #
+			//NSInteger page = [document.pageNumber integerValue]; // Current page #
 
-			ReaderContentView *targetView = (ReaderContentView *) [self  viewControllerAtIndex:page].view;
+			ReaderContentView *rcv = _currentContentView;
+            ReaderContentPage *targetView = [rcv getContentView];
 
 			id target = [targetView processSingleTap:recognizer]; // Target
 
@@ -476,6 +478,7 @@
 			NSInteger page = [document.pageNumber integerValue]; // Current page #
 
 			ReaderContentView *targetView = (ReaderContentView *) [self viewControllerAtIndex:page].view;
+            _pageIsAnimating = NO;
 
 			switch (recognizer.numberOfTouchesRequired) // Touches count
 			{
@@ -734,19 +737,17 @@
     }
     
     // Create a new view controller and pass suitable data.
-    ReaderContentViewController *dataViewController =
-    [[ReaderContentViewController alloc]
-     initWithNibName:nil
-     bundle:nil];
+    ReaderContentViewController *dataViewController = [[ReaderContentViewController alloc] initWithNibName:nil bundle:nil];
     
     NSURL *fileURL = document.fileURL; NSString *phrase = document.password;
-    CGRect viewRect = CGRectZero; viewRect.size = thePageView.view.bounds.size;
+    CGRect viewRect = CGRectZero; viewRect.size = thePageViewController.view.bounds.size;
 
     ReaderContentView *contentView = [[ReaderContentView alloc] initWithFrame:viewRect fileURL:fileURL page:index password:phrase];
     
     contentView.message = self;
     
     dataViewController.view = contentView;
+    _currentContentView = contentView;
     return dataViewController;
 }
 
@@ -760,6 +761,8 @@
 (UIPageViewController *)pageViewController viewControllerBeforeViewController:
 (UIViewController *)viewController
 {
+    if (_pageIsAnimating)
+        return nil;
     NSUInteger index = [self indexOfViewController:
                         (ReaderContentViewController *)viewController];
     if ((index == 0) || (index == NSNotFound)) {
@@ -773,6 +776,9 @@
 - (UIViewController *)pageViewController:
 (UIPageViewController *)pageViewController viewControllerAfterViewController:(UIViewController *)viewController
 {
+    if (_pageIsAnimating)
+        return nil;
+    
     NSUInteger index = [self indexOfViewController:
                         (ReaderContentViewController *)viewController];
     if (index == NSNotFound) {
@@ -786,6 +792,12 @@
     return [self viewControllerAtIndex:index];
 }
 
+
+//- (UIPageViewControllerSpineLocation)pageViewController:(UIPageViewController *)pageViewController
+//                   spineLocationForInterfaceOrientation:(UIInterfaceOrientation)orientation {
+//    _pageIsAnimating = NO;
+//}
+
 #pragma mark delegate for UIPageViewController
 
 - (void)pageViewController:(UIPageViewController *)pageViewController willTransitionToViewControllers:(NSArray *)pendingViewControllers {
@@ -793,8 +805,16 @@
     ReaderContentView *rv = (ReaderContentView *)rvc.view;
     
     document.pageNumber = [NSNumber numberWithInt: rv.pageNbr];
+    _pageIsAnimating = YES;
     [mainPagebar updatePagebar];
 }
 
+- (void)pageViewController:(UIPageViewController *)pageViewController didFinishAnimating:(BOOL)finished previousViewControllers:(NSArray *)previousViewControllers transitionCompleted:(BOOL)completed{
+    
+    if(completed) {
+        _currentContentView = (ReaderContentView *)[(UIViewController *)[pageViewController.viewControllers lastObject] view];
+        _pageIsAnimating = NO;
+    }
+}
 
 @end

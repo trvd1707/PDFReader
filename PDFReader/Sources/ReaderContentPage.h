@@ -26,6 +26,7 @@
 #import <UIKit/UIKit.h>
 
 @interface ReaderContentPage : UIView
+@property (nonatomic,assign, readonly) NSInteger myPage;
 
 - (id)initWithURL:(NSURL *)fileURL page:(NSInteger)page password:(NSString *)phrase;
 

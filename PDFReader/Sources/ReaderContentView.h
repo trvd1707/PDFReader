@@ -43,12 +43,15 @@
 
 @property (nonatomic, unsafe_unretained, readwrite) id <ReaderContentViewDelegate> message;
 @property (nonatomic,readonly) NSUInteger pageNbr;
+@property (nonatomic,readonly) ReaderContentPage * theContentView;
+
 
 - (id)initWithFrame:(CGRect)frame fileURL:(NSURL *)fileURL page:(NSUInteger)page password:(NSString *)phrase;
 
 - (void)showPageThumb:(NSURL *)fileURL page:(NSInteger)page password:(NSString *)phrase guid:(NSString *)guid;
 
 - (NSUInteger) getPageNbr;
+-(ReaderContentPage *) getContentView;
 
 - (id)processSingleTap:(UITapGestureRecognizer *)recognizer;
 

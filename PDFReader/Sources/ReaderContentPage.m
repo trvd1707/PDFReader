@@ -63,23 +63,12 @@
 		for (ReaderDocumentLink *link in _links) // Enumerate the links array
 		{
             int index = [_links indexOfObject:link];
-            UIButton *highlight = [UIButton buttonWithType:UIButtonTypeCustom];
-            highlight.frame = link.rect;
-            
+            UILabel *highlight = [[UILabel alloc] initWithFrame:link.rect];            
             highlight.backgroundColor = hilite; // Color
-            highlight.tag = index;
-            [highlight addTarget:self action:@selector(linkAction:) forControlEvents:UIControlEventTouchUpInside];
-                
+            highlight.tag = index;                
             [self addSubview:highlight];
 		}
 	}
-}
-
-
-- (void)linkAction:(id)sender
-{
-    UIButton *b = (UIButton *)sender;
-	NSLog(@"UIButton %d was clicked",b.tag);
 }
 
 - (ReaderDocumentLink *)linkFromAnnotation:(CGPDFDictionaryRef)annotationDictionary
@@ -177,7 +166,7 @@
 			}
 		}
 
-		[self highlightPageLinks]; // Link support debugging
+		//[self highlightPageLinks]; // Link support debugging
 	}
 }
 
@@ -382,8 +371,6 @@
 		}
 	}
     
-    NSLog(@"Link to page:%@",linkTarget);
-
 	return linkTarget;
 }
 
@@ -395,17 +382,15 @@
 	{
 		if (_links.count > 0) // Process the single tap
 		{
-			CGPoint point = [recognizer locationInView:nil];
+			CGPoint point = [recognizer locationInView:self];
  
 			for (ReaderDocumentLink *link in _links) // Enumerate links
 			{
 				if (CGRectContainsPoint(link.rect, point) == true) // Found it
 				{
-                    NSLog(@"Link found on:%d",[_links indexOfObject:link]);
 					result = [self annotationLinkTarget:link.dictionary]; break;
 				}
 			}
-            NSLog(@"Link not found");
 		}
 	}
 
@@ -517,7 +502,9 @@
 	id view = [self initWithFrame:viewRect]; // UIView setup
 
 	if (view != nil) [self buildAnnotationLinksList]; // Links
-
+    
+    _myPage = page;
+    
 	return view;
 }
 
