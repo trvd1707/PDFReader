@@ -103,7 +103,6 @@ static inline CGFloat ZoomScaleThatFits(CGSize target, CGSize source)
 		self.delegate = self;
         
         _pageNbr = page;
-        NSLog(@"Page:%d",page);
 
 		theContentView = [[ReaderContentPage alloc] initWithURL:fileURL page:page+1 password:phrase];
 

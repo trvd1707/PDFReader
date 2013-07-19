@@ -62,18 +62,24 @@
 
 		for (ReaderDocumentLink *link in _links) // Enumerate the links array
 		{
-			UILabel *highlight = [[UILabel alloc] initWithFrame:link.rect];
-
-			highlight.autoresizesSubviews = NO;
-			highlight.userInteractionEnabled = YES;
-			highlight.contentMode = UIViewContentModeRedraw;
-			highlight.autoresizingMask = UIViewAutoresizingNone;
-			highlight.backgroundColor = hilite; // Color
-            highlight.text = [NSString stringWithFormat:@"Link#:%d",[_links indexOfObject:link]];
-
-			[self addSubview:highlight];
+            int index = [_links indexOfObject:link];
+            UIButton *highlight = [UIButton buttonWithType:UIButtonTypeCustom];
+            highlight.frame = link.rect;
+            
+            highlight.backgroundColor = hilite; // Color
+            highlight.tag = index;
+            [highlight addTarget:self action:@selector(linkAction:) forControlEvents:UIControlEventTouchUpInside];
+                
+            [self addSubview:highlight];
 		}
 	}
+}
+
+
+- (void)linkAction:(id)sender
+{
+    UIButton *b = (UIButton *)sender;
+	NSLog(@"UIButton %d was clicked",b.tag);
 }
 
 - (ReaderDocumentLink *)linkFromAnnotation:(CGPDFDictionaryRef)annotationDictionary
@@ -164,9 +170,10 @@
 					{
 						ReaderDocumentLink *documentLink = [self linkFromAnnotation:annotationDictionary];
 
-						if (documentLink != nil) [_links insertObject:documentLink atIndex:0]; // Add link
+						if (documentLink != nil) [_links addObject:documentLink]; // Add link
 					}
-				}
+                }
+				
 			}
 		}
 
@@ -389,14 +396,16 @@
 		if (_links.count > 0) // Process the single tap
 		{
 			CGPoint point = [recognizer locationInView:nil];
-
+ 
 			for (ReaderDocumentLink *link in _links) // Enumerate links
 			{
 				if (CGRectContainsPoint(link.rect, point) == true) // Found it
 				{
+                    NSLog(@"Link found on:%d",[_links indexOfObject:link]);
 					result = [self annotationLinkTarget:link.dictionary]; break;
 				}
 			}
+            NSLog(@"Link not found");
 		}
 	}
 
@@ -591,9 +600,15 @@
 
 - (id)initWithRect:(CGRect)linkRect dictionary:(CGPDFDictionaryRef)linkDictionary
 {
-    // simplifyig according to http://www.cocoawithlove.com/2009/04/what-does-it-mean-when-you-assign-super.html
-        _dictionary = linkDictionary;        
+//    // simplifyig according to http://www.cocoawithlove.com/2009/04/what-does-it-mean-when-you-assign-super.html
+//        _dictionary = linkDictionary;        
+//		_rect = linkRect;
+    if ((self = [super init]))
+	{
+		_dictionary = linkDictionary;
+        
 		_rect = linkRect;
+	}
 
 	return self;
 }
