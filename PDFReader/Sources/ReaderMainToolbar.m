@@ -201,9 +201,7 @@
 		if (self.hidden == NO) // Only if toolbar is visible
 		{
 			UIImage *image = (state ? markImageY : markImageN);
-//            markButton.image = image;
-//            [markButton setBackButtonBackgroundImage:image forState:UIControlStateNormal barMetrics:UIBarMetricsDefault];
-            markButton.imageView.image = image;
+            [markButton setImage:image forState:UIControlStateNormal];
 		}
 
 		markButton.tag = state; // Update bookmarked state tag
@@ -223,8 +221,7 @@
 		BOOL state = markButton.tag; // Bookmarked state
 
 		UIImage *image = (state ? markImageY : markImageN);
-        //markButton.image = image;
-        markButton.imageView.image = image;
+        [markButton setImage:image forState:UIControlStateNormal];
 	}
 
 	if (markButton.enabled == NO) markButton.enabled = YES;
@@ -262,6 +259,7 @@
 			{
 				self.hidden = NO;
 				self.alpha = 1.0f;
+                [self.superview bringSubviewToFront:self]; // always show toolbar on top of view hierarchy
 			}
 			completion:NULL
 		];
@@ -292,7 +290,6 @@
 
 - (void)markButtonTapped:(UIButton *)button
 {
-        NSLog(@"Mark Page");
 	[delegate tappedInToolbar:self markButton:button];
 }
 

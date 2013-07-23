@@ -356,6 +356,7 @@
 		{
             thePageViewController.view.tag = (page - 1); // Increment page number
             document.pageNumber = [NSNumber numberWithInt:page-1];
+            [self updateMarkButtonOnToolbar:mainToolbar];
 		}
 	}
 }
@@ -371,6 +372,7 @@
 		{
 			thePageViewController.view.tag = (page + 1); // Increment page number
             document.pageNumber = [NSNumber numberWithInt:page+1];
+            [self updateMarkButtonOnToolbar:mainToolbar];
 		}
 	}
 }
@@ -682,6 +684,22 @@
 	}
 }
 
+- (void)updateMarkButtonOnToolbar:(ReaderMainToolbar *)toolbar 
+{
+	if (printInteraction != nil) [printInteraction dismissAnimated:YES];
+    
+	NSInteger page = [document.pageNumber integerValue];
+    
+	if ([document.bookmarks containsIndex:page]) // Remove bookmark
+	{
+		[mainToolbar setBookmarkState:YES];
+	}
+	else // Add the bookmarked page index to the bookmarks set
+	{
+		[mainToolbar setBookmarkState:NO]; 
+	}
+}
+
 #pragma mark MFMailComposeViewControllerDelegate methods
 
 - (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error
@@ -807,6 +825,7 @@
     document.pageNumber = [NSNumber numberWithInt: rv.pageNbr];
     _pageIsAnimating = YES;
     [mainPagebar updatePagebar];
+    [self updateMarkButtonOnToolbar:mainToolbar];
 }
 
 - (void)pageViewController:(UIPageViewController *)pageViewController didFinishAnimating:(BOOL)finished previousViewControllers:(NSArray *)previousViewControllers transitionCompleted:(BOOL)completed{
