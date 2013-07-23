@@ -60,10 +60,10 @@
 
 - (id)initWithFrame:(CGRect)frame
 {
-	return [self initWithFrame:frame document:nil];
+	return [self initWithFrame:frame document:nil withActionButton:nil];
 }
 
-- (id)initWithFrame:(CGRect)frame document:(ReaderDocument *)object
+- (id)initWithFrame:(CGRect)frame document:(ReaderDocument *)object withActionButton:actionButton
 {
 	assert(object != nil); // Must have a valid ReaderDocument
 
@@ -99,6 +99,10 @@
 
 
 #endif // end of READER_ENABLE_THUMBS Option
+        
+        if (actionButton != nil) {
+            [buttons addObject:actionButton];
+        }
 
 
 #if (READER_BOOKMARKS == TRUE) // Option

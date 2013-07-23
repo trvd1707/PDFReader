@@ -49,6 +49,7 @@
 	ReaderMainToolbar *mainToolbar;
 
 	ReaderMainPagebar *mainPagebar;
+    UIBarButtonItem *actionButton;
 
 	UIPrintInteractionController *printInteraction;
 
@@ -151,6 +152,31 @@
 	return reader;
 }
 
+- (id)initWithReaderDocument:(ReaderDocument *)object withActionButton: (UIBarButtonItem *)button
+{
+	id reader = nil; // ReaderViewController object
+    
+	if ((object != nil) && ([object isKindOfClass:[ReaderDocument class]]))
+	{
+		if ((self = [super initWithNibName:nil bundle:nil])) // Designated initializer
+		{
+			NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
+            
+			[notificationCenter addObserver:self selector:@selector(applicationWill:) name:UIApplicationWillTerminateNotification object:nil];
+            
+			[notificationCenter addObserver:self selector:@selector(applicationWill:) name:UIApplicationWillResignActiveNotification object:nil];
+            
+			[object updateProperties]; document = object; // Retain the supplied ReaderDocument object for our use
+            
+			[ReaderThumbCache touchThumbCacheWithGUID:object.guid]; // Touch the document thumb cache directory
+            
+            actionButton = button;
+            
+			reader = self; // Return an initialized ReaderViewController object
+		}
+	}
+	return reader;
+}
 
 
 - (void)viewDidLoad
@@ -167,7 +193,7 @@
 	CGRect toolbarRect = viewRect;
 	toolbarRect.size.height = TOOLBAR_HEIGHT;
 
-	mainToolbar = [[ReaderMainToolbar alloc] initWithFrame:toolbarRect document:document]; // At top
+	mainToolbar = [[ReaderMainToolbar alloc] initWithFrame:toolbarRect document:document withActionButton:actionButton]; // At top
     [mainToolbar sizeToFit];
     [mainToolbar setFrame:toolbarRect];
 

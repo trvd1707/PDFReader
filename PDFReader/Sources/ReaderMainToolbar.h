@@ -46,7 +46,7 @@
 
 @property (nonatomic, unsafe_unretained, readwrite) id <ReaderMainToolbarDelegate> delegate;
 
-- (id)initWithFrame:(CGRect)frame document:(ReaderDocument *)object;
+- (id)initWithFrame:(CGRect)frame document:(ReaderDocument *)object withActionButton:actionButton;
 
 - (void)setBookmarkState:(BOOL)state;
 

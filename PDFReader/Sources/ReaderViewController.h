@@ -44,6 +44,6 @@
 @property (nonatomic,readonly) ReaderContentView *currentContentView;
 @property (assign)              BOOL pageIsAnimating;
 
-- (id)initWithReaderDocument:(ReaderDocument *)object;
+- (id)initWithReaderDocument:(ReaderDocument *)object withActionButton:(UIBarButtonItem *)button;
 
 @end
