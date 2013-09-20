@@ -368,7 +368,8 @@
 				8613377D178B5541004B6339 /* ThumbsViewController.h */,
 				8613377F178B5541004B6339 /* UIXToolbarView.h */,
 			);
-			path = Headers;
+			name = Headers;
+			path = Sources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

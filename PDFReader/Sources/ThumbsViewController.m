@@ -130,9 +130,14 @@
 	[theThumbsView setThumbSize:CGSizeMake(thumbSize, thumbSize)]; // Thumb size based on device
 }
 
+- (BOOL)prefersStatusBarHidden {
+    return YES;
+}
+
 - (void)viewWillAppear:(BOOL)animated
 {
 	[super viewWillAppear:animated];
+    [self setNeedsStatusBarAppearanceUpdate];
 
 	[theThumbsView reloadThumbsCenterOnIndex:([document.pageNumber integerValue])]; // Page
 }

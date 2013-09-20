@@ -178,6 +178,9 @@
 	return reader;
 }
 
+- (BOOL)prefersStatusBarHidden {
+    return !self.showStatusBar;
+}
 
 - (void)viewDidLoad
 {
@@ -465,6 +468,8 @@
 					{
 						[mainToolbar showToolbar];
                         [mainPagebar showPagebar]; // Show
+                        self.showStatusBar = NO;
+                        [self setNeedsStatusBarAppearanceUpdate];
 					}
 				}
 			}
@@ -561,6 +566,8 @@
 		}
 
 		[mainToolbar hideToolbar]; [mainPagebar hidePagebar]; // Hide
+        self.showStatusBar = YES;
+        [self setNeedsStatusBarAppearanceUpdate];
 
 		lastHideTime = [NSDate date];
 	}

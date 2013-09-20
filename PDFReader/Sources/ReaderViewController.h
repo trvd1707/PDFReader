@@ -43,6 +43,7 @@
 @property (nonatomic, unsafe_unretained, readwrite) id <ReaderViewControllerDelegate> delegate;
 @property (nonatomic,readonly) ReaderContentView *currentContentView;
 @property (assign)              BOOL pageIsAnimating;
+@property (assign)      BOOL    showStatusBar;
 
 - (id)initWithReaderDocument:(ReaderDocument *)object withActionButton:(UIBarButtonItem *)button;
 
