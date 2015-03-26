@@ -375,7 +375,7 @@ void logDictionaryEntry(const char *key, CGPDFObjectRef object, void *info)
 
 	if ((fileURL != nil) && [fileURL isFileURL]) // Check for valid file URL
 	{
-		CGPDFDocumentRef document = CGPDFDocumentCreateX((__bridge CFURLRef)fileURL, phrase);
+		CGPDFDocumentRef document = CGPDFDocumentCreateUsingUrl((__bridge CFURLRef)fileURL, phrase);
 
 		if (document != NULL) // Check for non-NULL CGPDFDocumentRef
 		{

@@ -77,7 +77,7 @@
 
 	CGImageRef imageRef = NULL; CFURLRef fileURL = (__bridge CFURLRef)request.fileURL;
 
-	CGPDFDocumentRef thePDFDocRef = CGPDFDocumentCreateX(fileURL, password);
+	CGPDFDocumentRef thePDFDocRef = CGPDFDocumentCreateUsingUrl(fileURL, password);
 
 	if (thePDFDocRef != NULL) // Check for non-NULL CGPDFDocumentRef
 	{

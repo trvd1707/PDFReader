@@ -430,7 +430,7 @@
 
 	if (fileURL != nil) // Check for non-nil file URL
 	{
-		_PDFDocRef = CGPDFDocumentCreateX((__bridge CFURLRef)fileURL, phrase);
+		_PDFDocRef = CGPDFDocumentCreateUsingUrl((__bridge CFURLRef)fileURL, phrase);
 
 		if (_PDFDocRef != NULL) // Check for non-NULL CGPDFDocumentRef
 		{
