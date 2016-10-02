@@ -111,19 +111,20 @@
 //                                                                       style:UIBarButtonItemStylePlain
 //                                                                      target:self
 //                                                                      action:@selector(markButtonTapped:) ];
-        UIButton *flagButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        UIButton *flagButton = [UIButton buttonWithType:UIButtonTypeSystem];
         
-		UIImage *imageH = [UIImage imageNamed:@"Reader-Button-H"];
-		UIImage *imageN = [UIImage imageNamed:@"Reader-Button-N"];
-        
-        UIImage *buttonH = [imageH stretchableImageWithLeftCapWidth:5 topCapHeight:0];
-		UIImage *buttonN = [imageN stretchableImageWithLeftCapWidth:5 topCapHeight:0];
+//		UIImage *imageH = [UIImage imageNamed:@"Reader-Button-H"];
+//		UIImage *imageN = [UIImage imageNamed:@"Reader-Button-N"];
+//        
+//        UIImage *buttonH = [imageH stretchableImageWithLeftCapWidth:5 topCapHeight:0];
+//		UIImage *buttonN = [imageN stretchableImageWithLeftCapWidth:5 topCapHeight:0];
+
         
         flagButton.bounds = CGRectMake( 0, 0, MARK_BUTTON_WIDTH, BUTTON_HEIGHT );
 
         [flagButton addTarget:self action:@selector(markButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
-		[flagButton setBackgroundImage:buttonH forState:UIControlStateHighlighted];
-		[flagButton setBackgroundImage:buttonN forState:UIControlStateNormal];
+//		[flagButton setBackgroundImage:buttonH forState:UIControlStateHighlighted];
+//		[flagButton setBackgroundImage:buttonN forState:UIControlStateNormal];
 		flagButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin;
 		flagButton.exclusiveTouch = YES;
         flagButton.showsTouchWhenHighlighted = YES;

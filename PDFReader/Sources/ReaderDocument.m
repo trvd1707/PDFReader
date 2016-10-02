@@ -355,4 +355,8 @@
 	return self;
 }
 
+- (void)saveReaderDocument {
+
+}
+
 @end
